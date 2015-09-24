@@ -296,6 +296,7 @@ class Main
 		return parseProperties(File.getContent(path));
 	}
 	
+	// https://gist.github.com/YellowAfterlife/9643940
 	static function parseProperties(text:String):Map<String, String>
 	{
 		var map:Map<String, String> = new Map(),
@@ -449,16 +450,3 @@ class Main
 		}
 	}
 }
-/*
-cd /home/justin/content
-srm setup
-
-cd /home/justin/src/polydes/Common
-srm init {type} {name}
-
-ant -Djenkins=true
-srm add -j {"dist/stencyl.ext.polydes.common.jar"} (-v {1.3.0} -c {"- Update to new extension format."} -r {b8670})
-
-srm list {type} -{format}
-srm versions {type} {name} (latest (with {dependencies})) (from {version}) -{format}
-srm path {type} {name} {version}*/
