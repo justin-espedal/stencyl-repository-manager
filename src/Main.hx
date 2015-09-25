@@ -52,13 +52,12 @@ class Main
 			"   Sets the active repository to the current directory.\n" +
 			"   Creates needed files to run the rest of the commands.\n\n" +
 			
-			"add {jar} (options)\n" +
+			"add {jar} {changes}\n" +
 			"   Adds a new extension version to the repository.\n" +
 			"   Pertinent info is taken from the jar's manifest to\n" +
 			"   determine extension id, version, and other info.\n" +
 			"   {jar} path to jar file.\n" +
-			" Options:\n" +
-			"   -c \"- Changeset.\\n\"\n\n" +
+			"   {changes} path to changeset file.\n\n" +
 			
 			"list {type} (options)\n" +
 			"   Lists the extensions of specified type.\n" +
@@ -104,8 +103,7 @@ class Main
 	public static function addVersion(args:Array<String>):Void
 	{
 		var jarPath = args[0];
-		var switches = processSwitches(args);
-		var changes = switches.get("c");
+		var changePath = args[1];
 		
 		var entries = getEntries(jarPath);
 		var m = getManifest(entries);
@@ -136,7 +134,7 @@ class Main
 		var versions_json = FileSystem.exists('$extPath/versions') ?
 				Json.parse(File.getContent('$extPath/versions')) :
 				{"versions": []};
-		versions_json.versions.push({"version": version, "changes": changes, "requires-ext": dep});
+		versions_json.versions.push({"version": version, "changes": File.getContent(changePath), "requires-ext": dep});
 		File.saveContent('$extPath/versions', Json.stringify(versions_json));
 		
 		File.saveContent
