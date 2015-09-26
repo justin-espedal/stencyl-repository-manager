@@ -1,5 +1,5 @@
 -cp src
--main Main
+-main Stencylrm
 -lib cmd
 -lib thx.semver
 -neko stencylrm.n

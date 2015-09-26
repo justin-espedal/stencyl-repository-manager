@@ -11,7 +11,7 @@ import sys.FileSystem;
 import sys.io.File;
 import thx.semver.Version;
 
-class Main
+class Stencylrm
 {
 	/*-------------------------------------*\
 	 * Main
@@ -137,13 +137,20 @@ class Main
 				Json.parse(File.getContent('$extPath/versions')) :
 				{"versions": []};
 		var versionList = [];
+		var added = false;
+		var newVersion = {"version": version, "changes": File.getContent(changePath), "requires-ext": dep};
 		for(version_json in versions_json.versions)
 		{
 			if(version_json.version == version)
-				versionList.push({"version": version, "changes": File.getContent(changePath), "requires-ext": dep});
+			{
+				versionList.push(newVersion);
+				added = true;
+			}
 			else
 				versionList.push(version_json);
 		}
+		if(!added)
+			versionList.push(newVersion);
 		versions_json.versions = versionList;
 		File.saveContent('$extPath/versions', Json.stringify(versions_json));
 		
@@ -181,7 +188,7 @@ class Main
 	
 	public static function listVersions(args:Array<String>):Void
 	{
-		var switches = processSwitches(args, ["json"]);
+		var switches = processSwitches(args, ["json", "l"]);
 		var type = args[0];
 		var name = args[1];
 		
@@ -243,7 +250,7 @@ class Main
 		if(!FileSystem.exists(cfgPath))
 			return null;
 		
-		return File.getContent(cfgPath);
+		return File.getContent(cfgPath).split("\n")[0];
 	}
 	
 	static function getExtPath(type:String, name:String):String
