@@ -138,7 +138,7 @@ class Stencylrm
 				{"versions": []};
 		var versionList = [];
 		var added = false;
-		var newVersion = {"version": version, "changes": File.getContent(changePath), "requires-ext": dep};
+		var newVersion = {"version": version, "changes": File.getContent(changePath), "requires-ext": dep, "requires-stencyl": requiredStencyl, "requires-java": requiredJava};
 		for(version_json in versions_json.versions)
 		{
 			if(version_json.version == version)
