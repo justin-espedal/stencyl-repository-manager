@@ -1,3 +1,5 @@
+import cmd.Cmd;
+import cmd.Cmd.*;
 import haxe.Json;
 import haxe.crypto.Crc32;
 import haxe.io.Bytes;
@@ -17,7 +19,7 @@ class Main
 	
 	public static function main():Void
 	{
-		var args = Sys.args();
+		var args = getArgs();
 		
 		if(args.length == 0)
 		{
@@ -134,7 +136,15 @@ class Main
 		var versions_json = FileSystem.exists('$extPath/versions') ?
 				Json.parse(File.getContent('$extPath/versions')) :
 				{"versions": []};
-		versions_json.versions.push({"version": version, "changes": File.getContent(changePath), "requires-ext": dep});
+		var versionList = [];
+		for(version_json in versions_json.versions)
+		{
+			if(version_json.version == version)
+				versionList.push({"version": version, "changes": File.getContent(changePath), "requires-ext": dep});
+			else
+				versionList.push(version_json);
+		}
+		versions_json.versions = versionList;
 		File.saveContent('$extPath/versions', Json.stringify(versions_json));
 		
 		File.saveContent
@@ -153,7 +163,7 @@ class Main
 	
 	public static function listExtensions(args:Array<String>):Void
 	{
-		var switches = processSwitches(args);
+		var switches = processSwitches(args, ["json"]);
 		var type = args[0];
 		
 		var files = FileSystem.readDirectory('${getRepositoryPath()}/$type');
@@ -171,7 +181,7 @@ class Main
 	
 	public static function listVersions(args:Array<String>):Void
 	{
-		var switches = processSwitches(args);
+		var switches = processSwitches(args, ["json"]);
 		var type = args[0];
 		var name = args[1];
 		
@@ -212,39 +222,6 @@ class Main
 		var version = args[2];
 		
 		Sys.print(getExtPath(type, name) + '/$version.zip');
-	}
-	
-	/*-------------------------------------*\
-	 * Command Processing
-	\*-------------------------------------*/ 
-	
-	static var flags = ["json" => "1"];
-	
-	static function processSwitches(args:Array<String>):Map<String,String>
-	{
-		var switches = new Map<String, String>();
-		var key:String = null;
-		
-		for(arg in args)
-		{
-			if(key == null && arg.charAt(0) == "-")
-			{
-				key = arg.substring(1);
-				
-				if(flags.exists(key))
-				{
-					switches.set(key, "1");
-					key = null;
-				}
-			}
-			else if(key != null)
-			{
-				switches.set(key, arg);
-				key = null;
-			}
-		}
-		
-		return switches;
 	}
 	
 	/*-------------------------------------*\
