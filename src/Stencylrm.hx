@@ -46,7 +46,7 @@ class Stencylrm
 			case "versions":
 				listVersions(args);
 			case "path":
-				getVersionPath(args);
+				getPath(args);
 		}
 	}
 	
@@ -83,11 +83,11 @@ class Stencylrm
 			"   -d extension.id-1.0 \n" +
 			"   -json\n\n" +
 			
-			"path {type} {name} {version}\n" +
+			"path {type} {name} {object}\n" +
 			"   Get the path where a specific version is stored.\n" +
 			"   {type} is engine or toolset.\n" +
 			"   {name} is a unique id for the extension.\n" +
-			"   {version} is the desired version."
+			"   {object} is icon, info, or the desired version."
 		);
 	}
 	
@@ -246,13 +246,22 @@ class Stencylrm
 				Sys.println(version);
 	}
 	
-	public static function getVersionPath(args:Array<String>):Void
+	public static function getPathString(type:String, name:String, pathOf:String):String
 	{
-		var type = args[0];
-		var name = args[1];
-		var version = args[2];
-		
-		Sys.print(getExtPath(type, name) + '/$version.zip');
+		switch(pathOf)
+                {
+			case "icon":
+				return getExtPath(type, name) + '/icon.png';
+			case "info":
+				return getExtPath(type, name) + '/info';
+			default:
+				return getExtPath(type, name) + '/$pathOf.zip';
+                }
+	}
+
+	public static function getPath(args:Array<String>):Void
+	{
+		Sys.println(getPathString(args[0],args[1], args[2]));
 	}
 	
 	// ----
