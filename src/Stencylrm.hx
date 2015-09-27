@@ -272,6 +272,10 @@ class Stencylrm
 	
 	static function getConfigFilePath():String
 	{
+		var srmConf = Sys.getEnv("STENCYL_REPOSITORY_MANAGER_CONFIG");
+		if(srmConf != null)
+			return srmConf;
+		
 		if(Sys.systemName() == "Windows")
 			return Sys.getEnv("HOMEDRIVE") + Sys.getEnv("HOMEPATH") + "/.stencylrm";
 		else
