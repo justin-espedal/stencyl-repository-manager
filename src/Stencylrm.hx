@@ -11,6 +11,12 @@ import sys.FileSystem;
 import sys.io.File;
 import thx.semver.Version;
 
+typedef Dependency =
+{
+	var id:String;
+	var version:Version;
+}
+
 class Stencylrm
 {
 	/*-------------------------------------*\
@@ -138,7 +144,7 @@ class Stencylrm
 				{"versions": []};
 		var versionList = [];
 		var added = false;
-		var newVersion = {"version": version, "changes": File.getContent(changePath), "requires-ext": dep, "requires-stencyl": requiredStencyl, "requires-java": requiredJava};
+		var newVersion = {"version": version, "changes": File.getContent(changePath), "requires_ext": dep, "requires_stencyl": requiredStencyl, "requires_java": requiredJava};
 		for(version_json in versions_json.versions)
 		{
 			if(version_json.version == version)
@@ -195,9 +201,13 @@ class Stencylrm
 		var latest = switches.exists("l");
 		var fromVersion:Version = switches.exists("f") ?
 				switches.get("f") :
-				"0.0.0";
-		var dep = switches.get("d");
+				null;
+		var depends = switches.get("d");
+		var stencyl = switches.get("s");
 		var json = switches.exists("json");
+		
+		var deps = (depends == null) ? [] :
+			depends.split(",").map(function(d) { return asDep(d);});
 		
 		var extPath = getExtPath(type, name);
 		
@@ -205,12 +215,26 @@ class Stencylrm
 		
 		var list = [];
 		
-		for(version in (versions_json.versions:Array<Dynamic>))
+		for(version_json in (versions_json.versions:Array<Dynamic>))
 		{
-			if((version.number:Version) < fromVersion)
+			var curVer:Version = (version_json.version:String);
+			if(fromVersion != null && curVer <= fromVersion)
 				continue;
+			if(stencyl != null && Std.parseInt(stencyl.substring(1)) < Std.parseInt((version_json.requires_stencyl:String).substring(1)))
+				continue;
+			/*
+			if(deps != null)
+			{
+				var versionDeps = version_json.requires_ext.split(",").map(function(d) { return asDep(d); });
 				
-			list.push(version);
+				for(dep in deps)
+				{
+					
+				}				
+			}
+			*/
+			
+			list.push(version_json);
 		}
 		if(latest && list.length > 1)
 			list.splice(0, list.length - 1);
@@ -229,6 +253,17 @@ class Stencylrm
 		var version = args[2];
 		
 		Sys.print(getExtPath(type, name) + '/$version.zip');
+	}
+	
+	// ----
+	
+	static function asDep(d:String):Dependency
+	{
+		var split = d.split("-");
+		if(split.length == 1)
+			return {"id": split[0], "version": "0.0.1"};
+		var values = split[1].split(".").map(function (v) { return Std.parseInt(v); });
+		return {"id": split[0], "version":values};
 	}
 	
 	/*-------------------------------------*\
