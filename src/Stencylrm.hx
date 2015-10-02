@@ -286,9 +286,9 @@ class Stencylrm
 			return srmConf;
 		
 		if(Sys.systemName() == "Windows")
-			return Sys.getEnv("HOMEDRIVE") + Sys.getEnv("HOMEPATH") + "/.stencylrm";
+			return Sys.getEnv("HOMEDRIVE") + Sys.getEnv("HOMEPATH") + "/.srm_config";
 		else
-			return Sys.getEnv("HOME") + "/.stencylrm";
+			return Sys.getEnv("HOME") + "/.srm_config";
 	}
 	
 	static function getRepositoryPath():String
