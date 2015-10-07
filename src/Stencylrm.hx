@@ -249,8 +249,12 @@ class Stencylrm
 			var curVer:Version = (version_json.version:String);
 			if(fromVersion != null && curVer <= fromVersion)
 				continue;
-			if(stencyl != null && Std.parseInt(stencyl.substring(1)) < Std.parseInt((version_json.requires_stencyl:String).substring(1)))
-				continue;
+			if(stencyl != null)
+			{
+				var stencylDep:Array<String> = version_json.dependencies.split(",").map(function(s) return s.split("-")).filter(function(dep) return dep[0] == "stencyl");
+				if(stencylDep.length == 1 && (stencylDep[0]:Version) > stencyl)
+					continue;
+			}
 			/*
 			if(deps != null)
 			{
