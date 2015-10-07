@@ -486,7 +486,7 @@ class Stencylrm
 		
 		if(FileSystem.isDirectory(path))
 		{
-			entries.add({
+			/*entries.add({
 				fileName : prefix + filename,
 				fileSize : 0, 
 				fileTime : Date.now(), 
@@ -495,10 +495,12 @@ class Stencylrm
 				data : null,
 				crc32 : 0,
 				extraFields : new List()
-			});
+			});*/
 			
-			for(file in FileSystem.readDirectory(path))
-				addEntries(file, '$prefix/filename', entries);
+			prefix = prefix + filename;
+			
+			for(filename in FileSystem.readDirectory(path))
+				addEntries('$path/$filename', '$prefix/', entries);
 		}
 		else
 		{
