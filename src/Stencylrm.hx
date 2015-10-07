@@ -110,41 +110,70 @@ class Stencylrm
 	
 	public static function addVersion(args:Array<String>):Void
 	{
-		var jarPath = args[0];
+		var filePath = args[0];
 		var changePath = args[1];
 		
-		var entries = getEntries(jarPath);
-		var m = getManifest(entries);
-		var iconPath = m.get("Extension-Icon");
-		var icon = getBytes(entries, iconPath);
-		entries = null;
+		var type = FileSystem.isDirectory(filePath) ? "engine" : "toolset";
 		
-		var version = m.get("Extension-Version");
-		var dep = m.get("Extension-Dependencies");
-		var requiredStencyl = m.get("Extension-RequiredStencyl");
-		var requiredJava = m.get("Extension-RequiredExecutionEnvironment");
+		var version:String;
+		var dependencies:String;
 		
-		//basic info
-		var id = m.get("Extension-ID");
+		var id:String;
+		var name:String;
+		var description:String;
+		var authorName:String;
+		var website:String;
+		var category:String; //toolset only
+		var icon:Bytes;
 		
-		var name = m.get("Extension-Name");
-		var description = m.get("Extension-Description");
-		var authorName = m.get("Extension-Author");
-		var website = m.get("Extension-Website");
-		var type = m.get("Extension-Type");
+		if(type == "toolset")
+		{
+			var entries = getEntries(filePath);
+			var m = getManifest(entries);
+			var iconPath = m.get("Extension-Icon");
+			icon = getBytes(entries, iconPath);
+			entries = null;
 		
-		var extPath = getExtPath("toolset", id);
+			version = m.get("Extension-Version");
+			dependencies = m.get("Extension-Dependencies");
+			
+			id = m.get("Extension-ID");
+			
+			name = m.get("Extension-Name");
+			description = m.get("Extension-Description");
+			authorName = m.get("Extension-Author");
+			website = m.get("Extension-Website");
+			category = m.get("Extension-Type");
+		}
+		else
+		{
+			var info = parsePropertiesFile('$filePath/info.txt');
+			icon = File.getBytes('$filePath/icon.png');
+			
+			version = info.get("version");
+			id = args[2];
+			name = info.get("name");
+			description = info.get("description");
+			authorName = info.get("author");
+			website = info.get("website");
+			dependencies = info.get("dependencies");
+		}
+		
+		var extPath = getExtPath(type, id);
 		if(!FileSystem.exists(extPath))
 			FileSystem.createDirectory(extPath);
 		
-		zipFile(jarPath, '$extPath/$version.zip');
+		if(type == "toolset")
+			zipFile(filePath, '$extPath/$version.zip');
+		else
+			zipFolder(filePath, '$extPath/$version.zip');
 		
 		var versions_json = FileSystem.exists('$extPath/versions') ?
 				Json.parse(File.getContent('$extPath/versions')) :
 				{"versions": []};
 		var versionList = [];
 		var added = false;
-		var newVersion = {"version": version, "changes": File.getContent(changePath), "requires_ext": dep, "requires_stencyl": requiredStencyl, "requires_java": requiredJava};
+		var newVersion = {"version": version, "changes": File.getContent(changePath), "dependencies": dependencies};
 		for(version_json in versions_json.versions)
 		{
 			if(version_json.version == version)
@@ -167,8 +196,8 @@ class Stencylrm
 			'Name=$name\n' +
 			'Description=$description\n' +
 			'Author=$authorName\n' +
-			'Website=$website\n' +
-			'Type=$type'
+			'Website=$website' +
+			((type == "toolset") ? '\nType=$category' : "")
 		);
 		
 		File.saveBytes('$extPath/icon.png', icon);
@@ -429,6 +458,18 @@ class Stencylrm
 	{
 		var zipdata = new List<Entry>();
 		addEntries(path, "", zipdata);
+		
+		var output = File.write(out);
+		var zipWriter = new Writer(output);
+		zipWriter.write(zipdata);
+		output.close();
+	}
+	
+	static function zipFolder(path:String, out:String):Void
+	{
+		var zipdata = new List<Entry>();
+		for(filename in FileSystem.readDirectory(path))
+			addEntries('$path/$filename', "", zipdata);
 		
 		var output = File.write(out);
 		var zipWriter = new Writer(output);
