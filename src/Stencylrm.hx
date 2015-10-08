@@ -25,7 +25,7 @@ class Stencylrm
 	
 	public static function main():Void
 	{
-		var args = getArgs();
+		var args = Sys.args();
 		
 		if(args.length == 0)
 		{
