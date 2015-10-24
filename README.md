@@ -3,21 +3,24 @@
 Initial setup:
 ```
 cd /my/repository/home/
-stencylrm setup
+srm setup
 ```
 
 Add an extension/version to the repository:
 
-`stencylrm add /path/to/extension.jar -c "Changes."`
+`srm add /path/to/extension.jar /path/to/changeset/file`
+`srm add /path/to/engine-extension/folder /path/to/changeset/file engine.extension.id`
 
 View extensions added to repository:
 
-`stencylrm list toolset`
+`srm list toolset`
 
 View extension versions:
 
-`stencylrm versions toolset extension.id`
+`srm versions toolset extension.id`
 
-Get path for extension version:
+Get path for extension version or resource:
 
-`stencylrm path toolset extension.id 1.0.0`
+`srm path toolset extension.id 1.0.0`
+`srm path toolset extension.id icon`
+`srm path toolset extension.id info`
