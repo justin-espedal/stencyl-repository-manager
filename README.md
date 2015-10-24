@@ -9,6 +9,7 @@ srm setup
 Add an extension/version to the repository:
 
 `srm add /path/to/extension.jar /path/to/changeset/file`
+
 `srm add /path/to/engine-extension/folder /path/to/changeset/file engine.extension.id`
 
 View extensions added to repository:
